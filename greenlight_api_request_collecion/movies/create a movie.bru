@@ -1,0 +1,16 @@
+meta {
+  name: / - create a movie
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{movies}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

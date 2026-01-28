@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "greenlight_api_request_collecion",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
