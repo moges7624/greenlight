@@ -24,6 +24,56 @@ type MovieModel struct {
 	DB *sql.DB
 }
 
+func (m MovieModel) GetAll(
+	title string,
+	genres []string,
+	filters Filters,
+) ([]*Movie, error) {
+	query := `
+	SELECT id, created_at, title, year, runtime, genres, version
+	FROM movies
+	WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+	AND (genres @> $2 OR $2 = '{}')
+	ORDER BY id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query, title, pq.Array(genres))
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	movies := []*Movie{}
+
+	for rows.Next() {
+		var movie Movie
+
+		err := rows.Scan(
+			&movie.ID,
+			&movie.CreatedAt,
+			&movie.Title,
+			&movie.Year,
+			&movie.Runtime,
+			pq.Array(&movie.Genres),
+			&movie.Version,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		movies = append(movies, &movie)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return movies, nil
+}
+
 func (m MovieModel) Insert(movies *Movie) error {
 	query := `
 	INSERT INTO movies (title, year, runtime, genres)
@@ -48,9 +98,9 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	}
 
 	query := `
-		SELECT id, created_at, title, year, runtime, genres, version
-		FROM movies
-		WHERE id = $1`
+	SELECT id, created_at, title, year, runtime, genres, version
+	FROM movies
+	WHERE id = $1`
 
 	var movie Movie
 
@@ -81,10 +131,10 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 
 func (m MovieModel) Update(movie *Movie) error {
 	query := `
-		UPDATE movies
-		SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
-		WHERE id = $5 AND version = $6
-		RETURNING version`
+	UPDATE movies
+	SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
+	WHERE id = $5 AND version = $6
+	RETURNING version`
 
 	args := []any{
 		movie.Title,
@@ -113,8 +163,8 @@ func (m MovieModel) Update(movie *Movie) error {
 
 func (m MovieModel) Delete(id int64) error {
 	query := `
-		DELETE FROM movies
-		WHERE id = $1`
+	DELETE FROM movies
+	WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
