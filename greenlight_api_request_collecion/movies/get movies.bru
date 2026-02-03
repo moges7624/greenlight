@@ -5,17 +5,17 @@ meta {
 }
 
 get {
-  url: {{movies}}?title=moana&page=2&page_size=25&sort=title&genres=drama,comedy
+  url: {{movies}}?page=2&page_size=2&sort=title
   body: none
   auth: inherit
 }
 
 params:query {
-  title: moana
   page: 2
-  page_size: 25
+  page_size: 2
   sort: title
-  genres: drama,comedy
+  ~title: club
+  ~genres: animation
 }
 
 settings {
