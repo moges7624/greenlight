@@ -1,18 +1,17 @@
 meta {
-  name: / - create user
+  name: / - generate token
   type: http
   seq: 1
 }
 
 post {
-  url: {{users}}
+  url: {{tokens}}/authentication
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "name": "bob",
     "email": "token5@example.com",
     "password": "john1234"
   }
