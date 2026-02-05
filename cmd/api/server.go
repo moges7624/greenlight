@@ -22,8 +22,8 @@ func (app *application) serve() error {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	// Create a shutdownError channel. We will use this to receive any errors returned
-	// by the graceful Shutdown() function.
+	// Create a shutdownError channel. We will use this to receive any errors
+	// returned by the graceful Shutdown() function.
 	shutdownError := make(chan error)
 
 	go func() {

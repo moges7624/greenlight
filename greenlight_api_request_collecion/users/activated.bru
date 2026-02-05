@@ -1,0 +1,22 @@
+meta {
+  name: /activated
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{users}}/activated
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "token": "QH4H3NLKLUrYG6Q2WJK4ZNDS5Y"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
