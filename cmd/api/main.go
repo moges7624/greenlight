@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,6 +37,9 @@ type config struct {
 		username string
 		password string
 		sender   string
+	}
+	cors struct {
+		trustedOrigins []string
 	}
 }
 
@@ -86,10 +90,19 @@ func main() {
 		"limiter-rps",
 		2,
 		"Rate limiter maximum requests per second")
-	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
-	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+	flag.IntVar(&cfg.limiter.burst,
+		"limiter-burst",
+		4,
+		"Rate limiter maximum burst")
+	flag.BoolVar(&cfg.limiter.enabled,
+		"limiter-enabled",
+		true,
+		"Enable rate limiter")
 
-	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.StringVar(&cfg.smtp.host,
+		"smtp-host",
+		"sandbox.smtp.mailtrap.io",
+		"SMTP host")
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username",
 		"a3570ff3f6df0c", "SMTP username")
@@ -97,6 +110,13 @@ func main() {
 		"6b654b8275d753", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender",
 		"Greenlight <no-reply@greenlight.moges.net>", "SMTP sender")
+
+	flag.Func("cors-trusted-origins",
+		"Trusted CORS origins (space separated)",
+		func(val string) error {
+			cfg.cors.trustedOrigins = strings.Fields(val)
+			return nil
+		})
 
 	flag.Parse()
 
