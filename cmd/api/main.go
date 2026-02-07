@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -15,9 +16,10 @@ import (
 	"github.com/moges7624/greenlight/internal/data"
 	"github.com/moges7624/greenlight/internal/jsonlog"
 	"github.com/moges7624/greenlight/internal/mailer"
+	"github.com/moges7624/greenlight/internal/vcs"
 )
 
-const version = "1.0.0"
+var version = vcs.Version()
 
 type config struct {
 	port int
@@ -66,7 +68,7 @@ func main() {
 	flag.StringVar(
 		&cfg.db.dsn,
 		"db-dsn",
-		os.Getenv("GREENLIGHT_DB_DSN"),
+		"",
 		"PostgreSQL DSN",
 	)
 	flag.IntVar(
@@ -120,7 +122,14 @@ func main() {
 			return nil
 		})
 
+	displayVerson := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if *displayVerson {
+		fmt.Printf("Version:\t%s\n", version)
+		os.Exit(0)
+	}
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
